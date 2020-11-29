@@ -2,14 +2,9 @@
 
 package logger
 
-import (
-	"os"
-
-	"golang.org/x/sys/unix"
-)
-
 const SupportsColorEscapes = true
 
+/*
 func GetTerminalInfo(file *os.File) (info TerminalInfo) {
 	fd := file.Fd()
 
@@ -30,3 +25,4 @@ func GetTerminalInfo(file *os.File) (info TerminalInfo) {
 func writeStringWithColor(file *os.File, text string) {
 	file.WriteString(text)
 }
+*/

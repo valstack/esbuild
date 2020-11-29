@@ -8,9 +8,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"os"
 	"regexp"
 	"runtime/debug"
 	"sync"
@@ -41,6 +39,7 @@ type outgoingPacket struct {
 	bytes    []byte
 	refCount int
 }
+/*
 
 func runService() {
 	service := serviceType{
@@ -60,7 +59,7 @@ func runService() {
 			if !ok {
 				break // No more packets
 			}
-			os.Stdout.Write(packet.bytes)
+			//			os.Stdout.Write(packet.bytes)
 
 			// Only signal that this request is done when it has actually been written
 			if packet.refCount != 0 {
@@ -111,7 +110,7 @@ func runService() {
 	}
 
 	// Wait for the last response to be written to stdout
-	waitGroup.Wait()
+	waitGroup.Wait()*/
 }
 
 func (service *serviceType) sendRequest(request interface{}) interface{} {
@@ -631,7 +630,7 @@ func (service *serviceType) handleTransformRequest(id uint32, request map[string
 	}
 
 	transformInput := input
-	if inputFS {
+	/*if inputFS {
 		fs.BeforeFileOpen()
 		bytes, err := ioutil.ReadFile(input)
 		fs.AfterFileClose()
@@ -642,7 +641,7 @@ func (service *serviceType) handleTransformRequest(id uint32, request map[string
 			return encodeErrorPacket(id, err)
 		}
 		transformInput = string(bytes)
-	}
+	}*/
 
 	result := api.Transform(transformInput, options)
 	codeFS := false

@@ -370,8 +370,13 @@ func isVersionLessThan(a []int, b []int) bool {
 
 // Return all features that are not available in at least one environment
 func UnsupportedJSFeatures(constraints map[Engine][]int) (unsupported JSFeature) {
+
 	for feature, engines := range jsTable {
 		for engine, version := range constraints {
+
+			if engines == nil {
+				return
+			}
 			if minVersion, ok := engines[engine]; !ok || isVersionLessThan(version, minVersion) {
 				unsupported |= feature
 			}

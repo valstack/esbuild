@@ -6,7 +6,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"syscall"
+
+	//"syscall"
 
 	"github.com/evanw/esbuild/internal/ast"
 	"github.com/evanw/esbuild/internal/cache"
@@ -622,8 +623,8 @@ func (r *resolver) parseTSConfig(file string, visited map[string]bool) (*TSConfi
 						base, err := r.parseTSConfig(fileToCheck, visited)
 						if err == nil {
 							return base
-						} else if err == syscall.ENOENT {
-							continue
+							/*} else if err == syscall.ENOENT {
+							continue*/
 						} else if err == parseErrorImportCycle {
 							r.log.AddRangeWarning(&source, extendsRange,
 								fmt.Sprintf("Base config file %q forms cycle", extends))
@@ -650,8 +651,8 @@ func (r *resolver) parseTSConfig(file string, visited map[string]bool) (*TSConfi
 				base, err := r.parseTSConfig(fileToCheck, visited)
 				if err == nil {
 					return base
-				} else if err == syscall.ENOENT {
-					continue
+					/*} else if err == syscall.ENOENT {
+					continue*/
 				} else if err == parseErrorImportCycle {
 					r.log.AddRangeWarning(&source, extendsRange,
 						fmt.Sprintf("Base config file %q forms cycle", extends))
@@ -700,11 +701,11 @@ func (r *resolver) dirInfoUncached(path string) *dirInfo {
 	// List the directories
 	entries, err := r.fs.ReadDirectory(path)
 	if err != nil {
-		if err != syscall.ENOENT {
+		/*	if err != syscall.ENOENT {
 			r.log.AddError(nil, logger.Loc{},
 				fmt.Sprintf("Cannot read directory %q: %s",
 					r.PrettyPath(logger.Path{Text: path, Namespace: "file"}), err.Error()))
-		}
+		}*/
 		return nil
 	}
 	info := &dirInfo{
@@ -762,14 +763,14 @@ func (r *resolver) dirInfoUncached(path string) *dirInfo {
 			var err error
 			info.tsConfigJSON, err = r.parseTSConfig(tsConfigPath, make(map[string]bool))
 			if err != nil {
-				if err == syscall.ENOENT {
+				/*if err == syscall.ENOENT {
 					r.log.AddError(nil, logger.Loc{}, fmt.Sprintf("Cannot find tsconfig file %q",
 						r.PrettyPath(logger.Path{Text: tsConfigPath, Namespace: "file"})))
-				} else if err != parseErrorAlreadyLogged {
-					r.log.AddError(nil, logger.Loc{},
-						fmt.Sprintf("Cannot read file %q: %s",
-							r.PrettyPath(logger.Path{Text: tsConfigPath, Namespace: "file"}), err.Error()))
-				}
+				} else if err != parseErrorAlreadyLogged {*/
+				r.log.AddError(nil, logger.Loc{},
+					fmt.Sprintf("Cannot read file %q: %s",
+						r.PrettyPath(logger.Path{Text: tsConfigPath, Namespace: "file"}), err.Error()))
+				//}
 			}
 		}
 	}
@@ -821,11 +822,11 @@ func (r *resolver) parsePackageJSON(path string) *packageJSON {
 			if absolute, ok := r.loadAsIndex(pathText, mainEntries); ok {
 				return &absolute
 			}
-		} else if err != syscall.ENOENT {
+		} /* else if err != syscall.ENOENT {
 			r.log.AddRangeError(&jsonSource, pathRange,
 				fmt.Sprintf("Cannot read directory %q: %s",
 					r.PrettyPath(logger.Path{Text: pathText, Namespace: "file"}), err.Error()))
-		}
+		}*/
 		return nil
 	}
 
@@ -987,11 +988,11 @@ func (r *resolver) loadAsFile(path string, extensionOrder []string) (string, boo
 	dirPath := r.fs.Dir(path)
 	entries, err := r.fs.ReadDirectory(dirPath)
 	if err != nil {
-		if err != syscall.ENOENT {
+		/*if err != syscall.ENOENT {
 			r.log.AddError(nil, logger.Loc{},
 				fmt.Sprintf("Cannot read directory %q: %s",
 					r.PrettyPath(logger.Path{Text: dirPath, Namespace: "file"}), err.Error()))
-		}
+		}*/
 		return "", false
 	}
 

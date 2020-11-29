@@ -5,14 +5,13 @@
 package fs
 
 import (
-	"os"
 	"time"
 )
 
 var zeroTime time.Time
 
 func modKey(path string) (ModKey, error) {
-	info, err := os.Stat(path)
+	/*info, err := os.Stat(path)
 	if err != nil {
 		return ModKey{}, err
 	}
@@ -32,5 +31,6 @@ func modKey(path string) (ModKey, error) {
 		size:      info.Size(),
 		mtime_sec: mtime.Unix(),
 		mode:      uint32(info.Mode()),
-	}, nil
+	}, nil*/
+	return ModKey{}, nil
 }

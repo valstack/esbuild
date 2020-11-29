@@ -2,6 +2,7 @@
 
 package logger
 
+/*
 import (
 	"os"
 
@@ -30,3 +31,4 @@ func GetTerminalInfo(file *os.File) (info TerminalInfo) {
 func writeStringWithColor(file *os.File, text string) {
 	file.WriteString(text)
 }
+*/

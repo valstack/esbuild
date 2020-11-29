@@ -2,17 +2,13 @@ package api
 
 import (
 	"fmt"
-	"io/ioutil"
-	"math/rand"
-	"mime"
-	"net"
-	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"regexp"
+
+	//	"net/http"
+
+	//"net"
+	//"net/http"
+	//"os"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -172,7 +168,7 @@ func validateEngine(value EngineName) compat.Engine {
 	}
 }
 
-var versionRegex = regexp.MustCompile(`^([0-9]+)(?:\.([0-9]+))?(?:\.([0-9]+))?$`)
+//var versionRegex = regexp.MustCompile(`^([0-9]+)(?:\.([0-9]+))?(?:\.([0-9]+))?$`)
 
 func validateFeatures(log logger.Log, target Target, engines []Engine) (compat.JSFeature, compat.CSSFeature) {
 	constraints := make(map[compat.Engine][]int)
@@ -197,7 +193,7 @@ func validateFeatures(log logger.Log, target Target, engines []Engine) (compat.J
 		panic("Invalid target")
 	}
 
-	for _, engine := range engines {
+	/*for _, engine := range engines {
 		if match := versionRegex.FindStringSubmatch(engine.Version); match != nil {
 			if major, err := strconv.Atoi(match[1]); err == nil {
 				version := []int{major}
@@ -228,8 +224,8 @@ func validateFeatures(log logger.Log, target Target, engines []Engine) (compat.J
 		}
 
 		log.AddError(nil, logger.Loc{}, fmt.Sprintf("Invalid version: %q", engine.Version))
-	}
-
+	}*/
+	constraints[compat.Chrome] = []int{87, 1}
 	return compat.UnsupportedJSFeatures(constraints), compat.UnsupportedCSSFeatures(constraints)
 }
 
@@ -642,7 +638,7 @@ func rebuildImpl(
 			if !log.HasErrors() {
 				if buildOpts.Write {
 					// Special-case writing to stdout
-					if options.WriteToStdout {
+					/*if options.WriteToStdout {
 						if len(results) != 1 {
 							log.AddError(nil, logger.Loc{}, fmt.Sprintf(
 								"Internal error: did not expect to generate %d files when writing to stdout", len(results)))
@@ -650,32 +646,32 @@ func rebuildImpl(
 							log.AddError(nil, logger.Loc{}, fmt.Sprintf(
 								"Failed to write to stdout: %s", err.Error()))
 						}
-					} else {
-						// Write out files in parallel
-						waitGroup := sync.WaitGroup{}
-						waitGroup.Add(len(results))
-						for _, result := range results {
-							go func(result bundler.OutputFile) {
-								fs.BeforeFileOpen()
-								defer fs.AfterFileClose()
-								if err := os.MkdirAll(filepath.Dir(result.AbsPath), 0755); err != nil {
-									log.AddError(nil, logger.Loc{}, fmt.Sprintf(
-										"Failed to create output directory: %s", err.Error()))
-								} else {
-									var mode os.FileMode = 0644
-									if result.IsExecutable {
-										mode = 0755
-									}
-									if err := ioutil.WriteFile(result.AbsPath, result.Contents, mode); err != nil {
-										log.AddError(nil, logger.Loc{}, fmt.Sprintf(
-											"Failed to write to output file: %s", err.Error()))
-									}
-								}
-								waitGroup.Done()
-							}(result)
-						}
-						waitGroup.Wait()
+					} else {*/
+					// Write out files in parallel
+					waitGroup := sync.WaitGroup{}
+					waitGroup.Add(len(results))
+					for _, result := range results {
+						go func(result bundler.OutputFile) {
+							fs.BeforeFileOpen()
+							defer fs.AfterFileClose()
+							/*if err := os.MkdirAll(filepath.Dir(result.AbsPath), 0755); err != nil {
+								log.AddError(nil, logger.Loc{}, fmt.Sprintf(
+									"Failed to create output directory: %s", err.Error()))
+							} else {
+							var mode os.FileMode = 0644
+							if result.IsExecutable {
+								mode = 0755
+							}
+							if err := ioutil.WriteFile(result.AbsPath, result.Contents, mode); err != nil {
+								log.AddError(nil, logger.Loc{}, fmt.Sprintf(
+									"Failed to write to output file: %s", err.Error()))
+							}
+							}*/
+							waitGroup.Done()
+						}(result)
 					}
+					waitGroup.Wait()
+					//}
 				}
 
 				// Return the results
@@ -1013,6 +1009,7 @@ func escapeForAttribute(text string) string {
 	return text
 }
 
+/*
 func (h *apiHandler) notifyRequest(duration time.Duration, req *http.Request, status int) {
 	if h.onRequest != nil {
 		h.onRequest(ServeOnRequestArgs{
@@ -1133,6 +1130,7 @@ func (h *apiHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	res.Write([]byte("404 - Not Found"))
 }
 
+
 func serveImpl(serveOptions ServeOptions, buildOptions BuildOptions) (ServeResult, error) {
 	// The output directory isn't actually ever written to. It just needs to be
 	// very unlikely to be used as a source file so it doesn't collide.
@@ -1202,3 +1200,4 @@ func serveImpl(serveOptions ServeOptions, buildOptions BuildOptions) (ServeResul
 	}()
 	return result, nil
 }
+*/

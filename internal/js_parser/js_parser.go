@@ -911,6 +911,7 @@ func (p *parser) discardScopesUpTo(scopeIndex int) {
 }
 
 func (p *parser) newSymbol(kind js_ast.SymbolKind, name string) js_ast.Ref {
+	fmt.Println(name)
 	ref := js_ast.Ref{OuterIndex: p.source.Index, InnerIndex: uint32(len(p.symbols))}
 	p.symbols = append(p.symbols, js_ast.Symbol{
 		Kind:         kind,

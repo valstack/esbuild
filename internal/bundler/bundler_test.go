@@ -5,23 +5,19 @@ package bundler
 // manually rewriting all of the expected values. To update the tests run
 // "UPDATE_SNAPSHOTS=1 make test" and commit the updated values. Make sure to
 // inspect the diff to ensure the expected values are valid.
-
+/*
 import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"sort"
 	"strings"
 	"sync"
 	"testing"
 
-	"github.com/evanw/esbuild/internal/cache"
 	"github.com/evanw/esbuild/internal/compat"
 	"github.com/evanw/esbuild/internal/config"
-	"github.com/evanw/esbuild/internal/fs"
 	"github.com/evanw/esbuild/internal/logger"
-	"github.com/evanw/esbuild/internal/resolver"
 	"github.com/evanw/esbuild/internal/test"
 )
 
@@ -77,6 +73,7 @@ type suite struct {
 	expectedSnapshots  map[string]string
 	generatedSnapshots map[string]string
 }
+
 
 func (s *suite) expectBundled(t *testing.T, args bundled) {
 	t.Helper()
@@ -228,3 +225,4 @@ func TestMain(m *testing.M) {
 	}
 	os.Exit(code)
 }
+*/

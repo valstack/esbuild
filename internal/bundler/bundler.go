@@ -2,16 +2,16 @@ package bundler
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"encoding/base32"
+	//"crypto/sha1"
+
 	"encoding/base64"
 	"fmt"
 	"mime"
-	"net/http"
+
+	//"net/http"
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"unicode"
 	"unicode/utf8"
 
@@ -453,9 +453,9 @@ func parseFile(args parseArgs) {
 
 func guessMimeType(extension string, contents string) string {
 	mimeType := mime.TypeByExtension(extension)
-	if mimeType == "" {
+	/*if mimeType == "" {
 		mimeType = http.DetectContentType([]byte(contents))
-	}
+	}*/
 
 	// Turn "text/plain; charset=utf-8" into "text/plain;charset=utf-8"
 	return strings.ReplaceAll(mimeType, "; ", ";")
@@ -499,11 +499,12 @@ func extractSourceMapFromComment(
 		path := logger.Path{Text: absPath, Namespace: "file"}
 		contents, err := fsCache.ReadFile(fs, absPath)
 		if err != nil {
-			if err == syscall.ENOENT {
+			/*if err == syscall.ENOENT {
 				// Don't report a warning because this is likely unactionable
 				return logger.Path{}, nil
 			}
 			log.AddRangeError(source, comment.Range, fmt.Sprintf("Cannot read file %q: %s", res.PrettyPath(path), err.Error()))
+			*/
 			return logger.Path{}, nil
 		}
 		return path, &contents
@@ -713,11 +714,11 @@ func runOnLoadPlugins(
 				loader:        config.LoaderDefault,
 				absResolveDir: fs.Dir(source.KeyPath.Text),
 			}, true
-		} else if err == syscall.ENOENT {
-			log.AddRangeError(importSource, importPathRange,
-				fmt.Sprintf("Could not read from file: %s", source.KeyPath.Text))
-			return loaderPluginResult{}, false
-		} else {
+		} else { /*if err == syscall.ENOENT {
+				log.AddRangeError(importSource, importPathRange,
+					fmt.Sprintf("Could not read from file: %s", source.KeyPath.Text))
+				return loaderPluginResult{}, false
+			}  else {*/
 			log.AddRangeError(importSource, importPathRange,
 				fmt.Sprintf("Cannot read file %q: %s", res.PrettyPath(source.KeyPath), err.Error()))
 			return loaderPluginResult{}, false
@@ -758,8 +759,10 @@ func lowerCaseAbsPathForWindows(absPath string) string {
 }
 
 func hashForFileName(bytes []byte) string {
-	hashBytes := sha1.Sum(bytes)
-	return base32.StdEncoding.EncodeToString(hashBytes[:])[:8]
+	/*hashBytes := sha1.Sum(bytes)
+	return base32.StdEncoding.EncodeToString(hashBytes[:])[:8]*/
+	return ""
+
 }
 
 type scanner struct {

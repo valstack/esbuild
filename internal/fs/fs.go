@@ -2,13 +2,11 @@ package fs
 
 import (
 	"errors"
-	"io/ioutil"
-	"os"
+	"fmt"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 type EntryKind uint8
@@ -47,45 +45,47 @@ func (e *Entry) Symlink() string {
 
 func (e *Entry) stat() {
 	e.needStat = false
-	entryPath := filepath.Join(e.dir, e.base)
+	/*
+		e.needStat = false
+		entryPath := filepath.Join(e.dir, e.base)
 
-	// Use "lstat" since we want information about symbolic links
-	BeforeFileOpen()
-	defer AfterFileClose()
-	stat, err := os.Lstat(entryPath)
-	if err != nil {
-		return
-	}
-	mode := stat.Mode()
-
-	// Follow symlinks now so the cache contains the translation
-	if (mode & os.ModeSymlink) != 0 {
-		link, err := os.Readlink(entryPath)
+		// Use "lstat" since we want information about symbolic links
+		BeforeFileOpen()
+		defer AfterFileClose()
+		stat, err := os.Lstat(entryPath)
 		if err != nil {
-			return // Skip over this entry
+			return
 		}
-		if !filepath.IsAbs(link) {
-			link = filepath.Join(e.dir, link)
-		}
-		e.symlink = filepath.Clean(link)
+		mode := stat.Mode()
 
-		// Re-run "lstat" on the symlink target
-		stat2, err2 := os.Lstat(e.symlink)
-		if err2 != nil {
-			return // Skip over this entry
-		}
-		mode = stat2.Mode()
+		// Follow symlinks now so the cache contains the translation
 		if (mode & os.ModeSymlink) != 0 {
-			return // Symlink chains are not supported
-		}
-	}
+			link, err := os.Readlink(entryPath)
+			if err != nil {
+				return // Skip over this entry
+			}
+			if !filepath.IsAbs(link) {
+				link = filepath.Join(e.dir, link)
+			}
+			e.symlink = filepath.Clean(link)
 
-	// We consider the entry either a directory or a file
-	if (mode & os.ModeDir) != 0 {
-		e.kind = DirEntry
-	} else {
-		e.kind = FileEntry
-	}
+			// Re-run "lstat" on the symlink target
+			stat2, err2 := os.Lstat(e.symlink)
+			if err2 != nil {
+				return // Skip over this entry
+			}
+			mode = stat2.Mode()
+			if (mode & os.ModeSymlink) != 0 {
+				return // Symlink chains are not supported
+			}
+		}
+
+		// We consider the entry either a directory or a file
+		if (mode & os.ModeDir) != 0 {
+			e.kind = DirEntry
+		} else {
+			e.kind = FileEntry
+		}*/
 }
 
 type FS interface {
@@ -177,19 +177,23 @@ func MockFS(input map[string]string) FS {
 }
 
 func (fs *mockFS) ReadDirectory(path string) (map[string]*Entry, error) {
-	dir := fs.dirs[path]
-	if dir == nil {
-		return nil, syscall.ENOENT
-	}
-	return dir, nil
+	/*	dir := fs.dirs[path]
+		if dir == nil {
+			return nil, syscall.ENOENT
+		}
+		return dir, nil
+	*/
+	return nil, nil
 }
 
 func (fs *mockFS) ReadFile(path string) (string, error) {
-	contents, ok := fs.files[path]
+	/*contents, ok := fs.files[path]
 	if !ok {
 		return "", syscall.ENOENT
 	}
 	return contents, nil
+	*/
+	return "", nil
 }
 
 func (fs *mockFS) ModKey(path string) (ModKey, error) {
@@ -296,7 +300,7 @@ func AfterFileClose() {
 }
 
 func realpath(path string) string {
-	dir := filepath.Dir(path)
+	/*dir := filepath.Dir(path)
 	if dir == path {
 		return path
 	}
@@ -311,10 +315,12 @@ func realpath(path string) string {
 		return filepath.Join(dir, link)
 	}
 	return path
+	*/
+	return path
 }
 
 func RealFS() FS {
-	cwd, err := os.Getwd()
+	/*cwd, err := os.Getwd()
 	if err != nil {
 		cwd = ""
 	} else {
@@ -331,7 +337,12 @@ func RealFS() FS {
 	return &realFS{
 		entries: make(map[string]entriesOrErr),
 		cwd:     cwd,
+	}*/
+	return &realFS{
+		entries: make(map[string]entriesOrErr),
+		cwd:     "",
 	}
+
 }
 
 func (fs *realFS) ReadDirectory(dir string) (map[string]*Entry, error) {
@@ -369,7 +380,7 @@ func (fs *realFS) ReadDirectory(dir string) (map[string]*Entry, error) {
 }
 
 func (fs *realFS) ReadFile(path string) (string, error) {
-	BeforeFileOpen()
+	/*BeforeFileOpen()
 	defer AfterFileClose()
 	buffer, err := ioutil.ReadFile(path)
 
@@ -387,6 +398,8 @@ func (fs *realFS) ReadFile(path string) (string, error) {
 	}
 
 	return string(buffer), err
+	*/
+	return "", fmt.Errorf("NoImplementation")
 }
 
 func (fs *realFS) ModKey(path string) (ModKey, error) {
@@ -432,38 +445,41 @@ func (*realFS) Rel(base string, target string) (string, bool) {
 }
 
 func readdir(dirname string) ([]string, error) {
-	BeforeFileOpen()
-	defer AfterFileClose()
-	f, err := os.Open(dirname)
+	return nil, nil
+	/*
+		BeforeFileOpen()
+		defer AfterFileClose()
+		f, err := os.Open(dirname)
 
-	// Unwrap to get the underlying error
-	if pathErr, ok := err.(*os.PathError); ok {
-		err = pathErr.Unwrap()
-	}
+		// Unwrap to get the underlying error
+		if pathErr, ok := err.(*os.PathError); ok {
+			err = pathErr.Unwrap()
+		}
 
-	// Windows returns ENOTDIR here even though nothing we've done yet has asked
-	// for a directory. This really means ENOENT on Windows. Return ENOENT here
-	// so callers that check for ENOENT will successfully detect this directory
-	// as missing.
-	if err == syscall.ENOTDIR {
-		return nil, syscall.ENOENT
-	}
+		// Windows returns ENOTDIR here even though nothing we've done yet has asked
+		// for a directory. This really means ENOENT on Windows. Return ENOENT here
+		// so callers that check for ENOENT will successfully detect this directory
+		// as missing.
+		if err == syscall.ENOTDIR {
+			return nil, syscall.ENOENT
+		}
 
-	// Stop now if there was an error
-	if err != nil {
-		return nil, err
-	}
+		// Stop now if there was an error
+		if err != nil {
+			return nil, err
+		}
 
-	defer f.Close()
-	entries, err := f.Readdirnames(-1)
+		defer f.Close()
+		entries, err := f.Readdirnames(-1)
 
-	// Unwrap to get the underlying error
-	if syscallErr, ok := err.(*os.SyscallError); ok {
-		err = syscallErr.Unwrap()
-	}
+		// Unwrap to get the underlying error
+		if syscallErr, ok := err.(*os.SyscallError); ok {
+			err = syscallErr.Unwrap()
+		}
 
-	// Don't convert ENOTDIR to ENOENT here. ENOTDIR is a legitimate error
-	// condition for Readdirnames() on non-Windows platforms.
+		// Don't convert ENOTDIR to ENOENT here. ENOTDIR is a legitimate error
+		// condition for Readdirnames() on non-Windows platforms.
 
-	return entries, err
+		return entries, err
+	*/
 }

@@ -342,9 +342,11 @@ type ServeResult struct {
 	Stop func()
 }
 
+/*
 func Serve(serveOptions ServeOptions, buildOptions BuildOptions) (ServeResult, error) {
 	return serveImpl(serveOptions, buildOptions)
 }
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // Plugin API

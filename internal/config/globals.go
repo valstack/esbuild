@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"math"
 	"strings"
 	"sync"
@@ -163,6 +164,7 @@ type ProcessedDefines struct {
 func ProcessDefines(userDefines map[string]DefineData) ProcessedDefines {
 	// Optimization: reuse known globals if there are no user-specified defines
 	hasUserDefines := len(userDefines) != 0
+	fmt.Println("testi")
 	if !hasUserDefines {
 		processedGlobalsMutex.Lock()
 		if processedGlobals != nil {
@@ -171,7 +173,6 @@ func ProcessDefines(userDefines map[string]DefineData) ProcessedDefines {
 		}
 		processedGlobalsMutex.Unlock()
 	}
-
 	result := ProcessedDefines{
 		IdentifierDefines: make(map[string]DefineData),
 		DotDefines:        make(map[string][]DotDefine),
@@ -183,6 +184,7 @@ func ProcessDefines(userDefines map[string]DefineData) ProcessedDefines {
 	// example, the property access "a.b.c" has the side effect of throwing an
 	// exception if "a.b" is undefined.
 	for _, parts := range knownGlobals {
+
 		tail := parts[len(parts)-1]
 		if len(parts) == 1 {
 			result.IdentifierDefines[tail] = DefineData{CanBeRemovedIfUnused: true}
@@ -195,50 +197,52 @@ func ProcessDefines(userDefines map[string]DefineData) ProcessedDefines {
 	result.IdentifierDefines["undefined"] = DefineData{
 		DefineFunc: func(logger.Loc, FindSymbol) js_ast.E { return &js_ast.EUndefined{} },
 	}
+
 	result.IdentifierDefines["NaN"] = DefineData{
 		DefineFunc: func(logger.Loc, FindSymbol) js_ast.E { return &js_ast.ENumber{Value: math.NaN()} },
 	}
 	result.IdentifierDefines["Infinity"] = DefineData{
 		DefineFunc: func(logger.Loc, FindSymbol) js_ast.E { return &js_ast.ENumber{Value: math.Inf(1)} },
 	}
-
 	// Warn about use of this without a define
 	result.DotDefines["NODE_ENV"] = []DotDefine{{
 		Parts: []string{"process", "env", "NODE_ENV"},
 		Data:  DefineData{WarnAboutLackOfDefine: true},
 	}}
+	if hasUserDefines {
+		fmt.Println("userDefines")
+		// Then copy the user-specified defines in afterwards, which will overwrite
+		// any known globals above.
+		for key, data := range userDefines {
+			parts := strings.Split(key, ".")
 
-	// Then copy the user-specified defines in afterwards, which will overwrite
-	// any known globals above.
-	for key, data := range userDefines {
-		parts := strings.Split(key, ".")
-
-		// Identifier defines are special-cased
-		if len(parts) == 1 {
-			result.IdentifierDefines[key] = mergeDefineData(result.IdentifierDefines[key], data)
-			continue
-		}
-
-		tail := parts[len(parts)-1]
-		dotDefines := result.DotDefines[tail]
-		found := false
-
-		// Try to merge with existing dot defines first
-		for i, define := range dotDefines {
-			if arePartsEqual(parts, define.Parts) {
-				define := &dotDefines[i]
-				define.Data = mergeDefineData(define.Data, data)
-				found = true
-				break
+			// Identifier defines are special-cased
+			if len(parts) == 1 {
+				result.IdentifierDefines[key] = mergeDefineData(result.IdentifierDefines[key], data)
+				continue
 			}
-		}
 
-		if !found {
-			dotDefines = append(dotDefines, DotDefine{Parts: parts, Data: data})
+			tail := parts[len(parts)-1]
+			dotDefines := result.DotDefines[tail]
+			found := false
+
+			// Try to merge with existing dot defines first
+			for i, define := range dotDefines {
+				if arePartsEqual(parts, define.Parts) {
+					define := &dotDefines[i]
+					define.Data = mergeDefineData(define.Data, data)
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				dotDefines = append(dotDefines, DotDefine{Parts: parts, Data: data})
+			}
+			result.DotDefines[tail] = dotDefines
 		}
-		result.DotDefines[tail] = dotDefines
 	}
-
+	fmt.Println("testi1")
 	// Potentially cache the result for next time
 	if !hasUserDefines {
 		processedGlobalsMutex.Lock()
@@ -247,6 +251,7 @@ func ProcessDefines(userDefines map[string]DefineData) ProcessedDefines {
 			processedGlobals = &result
 		}
 	}
+	fmt.Println("testi2")
 	return result
 }
 

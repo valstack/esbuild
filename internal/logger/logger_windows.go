@@ -2,10 +2,13 @@
 
 package logger
 
+/*
 import (
 	"os"
 	"strings"
 	"syscall"
+
+	//"syscall"
 	"unsafe"
 )
 
@@ -112,3 +115,4 @@ func writeStringWithColor(file *os.File, text string) {
 
 	file.WriteString(text)
 }
+*/

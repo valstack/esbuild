@@ -1,5 +1,6 @@
 package cli
 
+/*
 import (
 	"fmt"
 	"io/ioutil"
@@ -622,3 +623,4 @@ func serveImpl(portText string, osArgs []string) error {
 	})
 	return result.Wait()
 }
+*/

@@ -7,7 +7,6 @@ package logger
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -251,17 +250,17 @@ type TerminalInfo struct {
 func NewStderrLog(options StderrOptions) Log {
 	var mutex sync.Mutex
 	var msgs SortableMsgs
-	terminalInfo := GetTerminalInfo(os.Stderr)
+	//terminalInfo := GetTerminalInfo(os.Stderr)
 	errors := 0
 	warnings := 0
 	errorLimitWasHit := false
 
-	switch options.Color {
+	/*switch options.Color {
 	case ColorNever:
 		terminalInfo.UseColorEscapes = false
 	case ColorAlways:
 		terminalInfo.UseColorEscapes = SupportsColorEscapes
-	}
+	}*/
 
 	return Log{
 		AddMsg: func(msg Msg) {
@@ -277,23 +276,23 @@ func NewStderrLog(options StderrOptions) Log {
 			switch msg.Kind {
 			case Error:
 				errors++
-				if options.LogLevel <= LevelError {
-					writeStringWithColor(os.Stderr, msg.String(options, terminalInfo))
-				}
+			/*	if options.LogLevel <= LevelError {
+				writeStringWithColor(os.Stderr, msg.String(options, terminalInfo))
+			}*/
 			case Warning:
 				warnings++
-				if options.LogLevel <= LevelWarning {
+				/*if options.LogLevel <= LevelWarning {
 					writeStringWithColor(os.Stderr, msg.String(options, terminalInfo))
-				}
+				}*/
 			}
 
 			// Silence further output if we reached the error limit
 			if options.ErrorLimit != 0 && errors >= options.ErrorLimit {
 				errorLimitWasHit = true
-				if options.LogLevel <= LevelError {
+				/*if options.LogLevel <= LevelError {
 					writeStringWithColor(os.Stderr, fmt.Sprintf(
 						"%s reached (disable error limit with --error-limit=0)\n", errorAndWarningSummary(errors, warnings)))
-				}
+				}*/
 			}
 		},
 		HasErrors: func() bool {
@@ -307,7 +306,7 @@ func NewStderrLog(options StderrOptions) Log {
 
 			// Print out a summary if the error limit wasn't hit
 			if !errorLimitWasHit && options.LogLevel <= LevelInfo && (warnings != 0 || errors != 0) {
-				writeStringWithColor(os.Stderr, fmt.Sprintf("%s\n", errorAndWarningSummary(errors, warnings)))
+				//	writeStringWithColor(os.Stderr, fmt.Sprintf("%s\n", errorAndWarningSummary(errors, warnings)))
 			}
 
 			sort.Stable(msgs)
@@ -366,18 +365,18 @@ func PrintTextToStderr(level LogLevel, osArgs []string, callback func(Colors) st
 	if options.LogLevel > level {
 		return
 	}
+	/*
+		var useColorEscapes bool
+		switch options.Color {
+		case ColorNever:
+			useColorEscapes = false
+		case ColorAlways:
+			useColorEscapes = SupportsColorEscapes
+		case ColorIfTerminal:
+			useColorEscapes = GetTerminalInfo(os.Stderr).UseColorEscapes
+		}*/
 
-	var useColorEscapes bool
-	switch options.Color {
-	case ColorNever:
-		useColorEscapes = false
-	case ColorAlways:
-		useColorEscapes = SupportsColorEscapes
-	case ColorIfTerminal:
-		useColorEscapes = GetTerminalInfo(os.Stderr).UseColorEscapes
-	}
-
-	var colors Colors
+	/*var colors Colors
 	if useColorEscapes {
 		colors.Default = colorReset
 		colors.Dim = colorResetDim
@@ -385,7 +384,7 @@ func PrintTextToStderr(level LogLevel, osArgs []string, callback func(Colors) st
 		colors.Green = colorGreen
 		colors.Underline = colorResetUnderline
 	}
-	writeStringWithColor(os.Stderr, callback(colors))
+	writeStringWithColor(os.Stderr, callback(colors))*/
 }
 
 func NewDeferLog() Log {
